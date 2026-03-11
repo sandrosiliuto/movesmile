@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fit.lifewithasmile | Maderoterapia Tenerife</title>
+    <!-- Tailwind CSS para diseño moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Playfair Display para elegancia y Lato para lectura -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --color-nude: #f4ece6;
+            --color-wood: #a67c52;
+            --color-dark: #2d241e;
+        }
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--color-nude);
+            color: var(--color-dark);
+            scroll-behavior: smooth;
+        }
+        h1, h2, h3, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .hero-gradient {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1544161515-4af6b1d8d16e?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+            transition: transform 0.3s;
+        }
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+        }
+        .card-service:hover {
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        /* Estilo para simular el feed de Instagram */
+        .insta-grid img {
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        /* Estilos del Calendario */
+        .calendar-day {
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .calendar-day:hover:not(.empty) {
+            background-color: var(--color-wood);
+            color: white;
+        }
+        .calendar-day.selected {
+            background-color: var(--color-dark);
+            color: white;
+        }
+        .calendar-day.empty {
+            cursor: default;
+        }
+        /* Modal Animation */
+        .modal-active {
+            display: flex !important;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- Navegación -->
+    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-stone-200">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- LOGO fit.lifewithasmile -->
+            <a href="#inicio" class="flex items-center space-x-2 group">
+                <div class="bg-stone-800 p-1.5 rounded-lg text-white group-hover:bg-amber-700 transition">
+                    <i data-lucide="sparkle" class="w-5 h-5"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tighter text-stone-800">fit.lifewithasmile</span>
+            </a>
+            
+            <div class="hidden md:flex space-x-8 items-center font-medium uppercase text-xs tracking-widest text-stone-600">
+                <a href="#inicio" class="hover:text-amber-700 transition">Inicio</a>
+                <a href="#maderoterapia" class="hover:text-amber-700 transition">Maderoterapia</a>
+                <a href="#servicios" class="hover:text-amber-700 transition">Servicios</a>
+                <a href="#sobre-mi" class="hover:text-amber-700 transition">Sobre Mí</a>
+                <button onclick="toggleModal()" class="bg-stone-800 text-white px-6 py-2 rounded-full hover:bg-stone-700 transition shadow-md">Agendar Cita</button>
+            </div>
+            <button class="md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+        <!-- Menú Móvil -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white w-full p-6 space-y-4 shadow-lg text-center uppercase text-sm tracking-widest">
+            <a href="#inicio" class="block py-2">Inicio</a>
+            <a href="#maderoterapia" class="block py-2">Maderoterapia</a>
+            <a href="#servicios" class="block py-2">Servicios</a>
+            <button onclick="toggleModal()" class="block w-full py-2 text-amber-700 font-bold">Agendar Cita</button>
+        </div>
+    </nav>
+
+    <!-- Modal de Citas (Calendario) -->
+    <div id="booking-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div class="p-6 bg-stone-800 text-white flex justify-between items-center">
+                <h3 class="text-xl font-serif">Elige tu fecha</h3>
+                <button onclick="toggleModal()" class="hover:rotate-90 transition-transform"><i data-lucide="x"></i></button>
+            </div>
+            <div class="p-6">
+                <!-- Selector de Meses -->
+                <div class="flex items-center justify-between mb-6">
+                    <button onclick="changeMonth(-1)" class="p-2 hover:bg-stone-100 rounded-full transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                    <span id="current-month-year" class="font-bold uppercase tracking-widest text-sm text-stone-700">Marzo 2024</span>
+                    <button onclick="changeMonth(1)" class="p-2 hover:bg-stone-100 rounded-full transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                </div>
+                
+                <!-- Días de la semana -->
+                <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-stone-400 uppercase mb-2">
+                    <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+                </div>
+                
+                <!-- Grid de Días -->
+                <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-sm">
+                    <!-- Dinámico con JS -->
+                </div>
+
+                <div id="selected-date-msg" class="mt-6 p-4 bg-stone-50 rounded-xl text-center text-xs text-stone-500 italic">
+                    Selecciona un día para confirmar tu cita.
+                </div>
+
+                <button id="whatsapp-btn" disabled class="w-full mt-4 bg-green-600 text-white py-4 rounded-xl font-bold uppercase text-xs tracking-widest opacity-50 cursor-not-allowed transition hover:bg-green-700">
+                    Confirmar por WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <header id="inicio" class="relative h-screen flex items-center justify-center hero-gradient text-white">
+        <div class="text-center px-6 max-w-4xl">
+            <h1 class="text-5xl md:text-7xl mb-6">Esculpe tu cuerpo en <br><span class="italic font-normal">Tenerife.</span></h1>
+            <p class="text-lg md:text-xl mb-10 font-light max-w-2xl mx-auto opacity-90">
+                Maderoterapia avanzada en las Islas Canarias. Resultados visibles y bienestar natural en el paraíso.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="toggleModal()" class="bg-white text-stone-900 px-10 py-4 rounded-full font-bold uppercase text-sm tracking-widest hover:bg-stone-100 transition flex items-center justify-center shadow-xl">
+                    <i data-lucide="calendar" class="mr-2 w-5"></i> Agendar Cita
+                </button>
+                <a href="#maderoterapia" class="border border-white/50 backdrop-blur-sm px-10 py-4 rounded-full font-bold uppercase text-sm tracking-widest hover:bg-white/20 transition">
+                    Ver Tratamientos
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Maderoterapia Info -->
+    <section id="maderoterapia" class="py-24 px-6 bg-white">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            <div>
+                <span class="text-amber-700 font-bold uppercase tracking-widest text-sm">El Arte de la Madera</span>
+                <h2 class="text-4xl md:text-5xl mt-4 mb-8 leading-tight">Maderoterapia en el Archipiélago</h2>
+                <p class="text-stone-600 leading-relaxed mb-6">
+                    Tenerife es el escenario perfecto para reconectar con tu cuerpo. Nuestra técnica utiliza instrumentos de madera diseñados para equilibrar la energía y remodelar la figura de forma 100% natural.
+                </p>
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="bg-stone-100 p-2 rounded-full mr-4"><i data-lucide="check" class="text-amber-700 w-5"></i></div>
+                        <p><strong>Adiós Celulitis:</strong> Drenaje profundo adaptado a tu estilo de vida en la isla.</p>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-stone-100 p-2 rounded-full mr-4"><i data-lucide="check" class="text-amber-700 w-5"></i></div>
+                        <p><strong>Bienestar Canario:</strong> Tratamientos relajantes frente a la brisa del Atlántico.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative">
+                <img src="https://images.unsplash.com/photo-1519823551278-64ac92734fb1?q=80&w=1887&auto=format&fit=crop" alt="Tratamiento Tenerife" class="rounded-2xl shadow-2xl">
+                <div class="absolute -bottom-8 -left-8 bg-stone-900 text-white p-8 rounded-2xl hidden lg:block shadow-xl">
+                    <p class="text-3xl font-serif italic text-amber-200">Canary Islands</p>
+                    <p class="text-xs uppercase tracking-widest opacity-70">Ubicación Exclusiva</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Servicios -->
+    <section id="servicios" class="py-24 px-6 bg-stone-50">
+        <div class="max-w-7xl mx-auto text-center mb-16">
+            <h2 class="text-4xl md:text-5xl mb-4 italic">Servicios Exclusivos</h2>
+            <p class="text-stone-500 max-w-xl mx-auto font-light">Transforma tu silueta con la magia de la madera en Tenerife.</p>
+        </div>
+        
+        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+            <!-- Servicio 1 -->
+            <div class="bg-white p-10 rounded-3xl shadow-sm card-service border border-stone-100">
+                <div class="w-16 h-16 bg-amber-50 text-amber-700 rounded-2xl flex items-center justify-center mb-6">
+                    <i data-lucide="sparkles" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl mb-4">Corporal Reductor</h3>
+                <p class="text-stone-500 mb-8 font-light italic">Ideal para lucir tu mejor versión en las playas de Tenerife.</p>
+                <button onclick="toggleModal()" class="text-amber-800 font-bold uppercase text-xs tracking-widest flex items-center hover:translate-x-2 transition-transform">
+                    Reservar ahora <i data-lucide="chevron-right" class="ml-2 w-4"></i>
+                </button>
+            </div>
+
+            <!-- Servicio 2 -->
+            <div class="bg-white p-10 rounded-3xl shadow-sm card-service border border-stone-100">
+                <div class="w-16 h-16 bg-amber-50 text-amber-700 rounded-2xl flex items-center justify-center mb-6">
+                    <i data-lucide="user" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl mb-4">Facial Lifting</h3>
+                <p class="text-stone-500 mb-8 font-light italic">Ilumina tu rostro y rejuvenece tu piel de forma natural.</p>
+                <button onclick="toggleModal()" class="text-amber-800 font-bold uppercase text-xs tracking-widest flex items-center hover:translate-x-2 transition-transform">
+                    Reservar ahora <i data-lucide="chevron-right" class="ml-2 w-4"></i>
+                </button>
+            </div>
+
+            <!-- Servicio 3 -->
+            <div class="bg-white p-10 rounded-3xl shadow-sm card-service border border-stone-100">
+                <div class="w-16 h-16 bg-amber-50 text-amber-700 rounded-2xl flex items-center justify-center mb-6">
+                    <i data-lucide="leaf" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl mb-4">Pack Relax Total</h3>
+                <p class="text-stone-500 mb-8 font-light italic">Desconecta del mundo y fluye con la energía de la madera.</p>
+                <button onclick="toggleModal()" class="text-amber-800 font-bold uppercase text-xs tracking-widest flex items-center hover:translate-x-2 transition-transform">
+                    Reservar ahora <i data-lucide="chevron-right" class="ml-2 w-4"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sobre Mí -->
+    <section id="sobre-mi" class="py-24 px-6 bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row gap-16 items-center">
+            <div class="md:w-1/2 grid grid-cols-2 gap-4 insta-grid">
+                <img src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop" alt="Spa 1">
+                <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1000&auto=format&fit=crop" alt="Maderas 2">
+                <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=1000&auto=format&fit=crop" alt="Aceites 3">
+                <img src="https://images.unsplash.com/photo-1583416750470-965b2707b355?q=80&w=1000&auto=format&fit=crop" alt="Piel 4">
+            </div>
+            <div class="md:w-1/2">
+                <span class="text-stone-400 uppercase tracking-[0.3em] text-xs">Bienvenida a mi espacio</span>
+                <h2 class="text-4xl md:text-5xl my-6">fit.lifewithasmile</h2>
+                <p class="text-stone-600 leading-relaxed mb-6 font-light italic text-lg">
+                    "Mi pasión es ayudarte a encontrar tu mejor versión. Ahora desde Tenerife, ofrezco maderoterapia avanzada para que sonrías frente al espejo."
+                </p>
+                <p class="text-stone-600 mb-8 font-light">
+                    Sigue mi día a día, resultados de pacientes y consejos de bienestar en mi perfil de Instagram.
+                </p>
+                <a href="https://www.instagram.com/fit.lifewithasmile" target="_blank" class="flex items-center space-x-3 text-stone-900 group">
+                    <span class="bg-stone-900 text-white p-3 rounded-full group-hover:bg-amber-700 transition"><i data-lucide="instagram"></i></span>
+                    <span class="font-bold uppercase text-xs tracking-widest underline decoration-stone-200 underline-offset-8">@fit.lifewithasmile</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-stone-950 text-stone-400 py-16 px-6 border-t border-stone-800">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-12">
+            <div class="md:col-span-2">
+                <div class="text-2xl font-serif font-bold text-white mb-6">
+                    fit.lifewithasmile
+                </div>
+                <p class="max-w-md text-sm leading-relaxed opacity-60 italic">
+                    Especialistas en maderoterapia y bienestar integral en el corazón de las Islas Canarias.
+                </p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase text-xs tracking-widest">Contacto</h4>
+                <ul class="space-y-4 text-sm">
+                    <li class="flex items-center"><i data-lucide="map-pin" class="mr-3 w-4 text-amber-600"></i> Tenerife, Canary Islands</li>
+                    <li class="flex items-center"><i data-lucide="phone" class="mr-3 w-4 text-amber-600"></i> +34 600 000 000</li>
+                    <li class="flex items-center"><i data-lucide="mail" class="mr-3 w-4 text-amber-600"></i> info@fitlifewithasmile.com</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase text-xs tracking-widest">Horario</h4>
+                <ul class="space-y-4 text-sm font-light">
+                    <li>Lunes - Viernes: 09:00 - 20:00</li>
+                    <li>Sábados: 10:00 - 14:00</li>
+                    <li>Domingos: Cerrado</li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto border-t border-stone-900 mt-16 pt-8 text-center text-[10px] uppercase tracking-widest opacity-40">
+            © 2024 fit.lifewithasmile | Maderoterapia Tenerife | Diseñado para tu Sonrisa.
+        </div>
+    </footer>
+
+    <!-- Botón WhatsApp Flotante -->
+    <a href="https://wa.me/34600000000" target="_blank" class="whatsapp-float bg-green-500 text-white p-4 rounded-full shadow-2xl flex items-center justify-center hover:bg-green-600 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+        </svg>
+    </a>
+
+    <script>
+        // Inicializar iconos
+        lucide.createIcons();
+        
+        // --- LOGICA DEL CALENDARIO ---
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let selectedDate = null;
+
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        function toggleModal() {
+            const modal = document.getElementById('booking-modal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('modal-active');
+            if (!modal.classList.contains('hidden')) {
+                renderCalendar();
+            }
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const monthYearText = document.getElementById('current-month-year');
+            grid.innerHTML = "";
+            
+            monthYearText.innerText = `${monthNames[currentMonth]} ${currentYear}`;
+            
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            // Ajuste para que lunes sea 0 (JS usa domingo=0)
+            let startingDay = firstDay === 0 ? 6 : firstDay - 1;
+
+            // Espacios vacíos
+            for (let i = 0; i < startingDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = "calendar-day empty";
+                grid.appendChild(empty);
+            }
+
+            // Días del mes
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayEl = document.createElement('div');
+                dayEl.innerText = day;
+                dayEl.className = "calendar-day text-stone-700";
+                
+                // Marcar seleccionado
+                if (selectedDate && selectedDate.day === day && selectedDate.month === currentMonth && selectedDate.year === currentYear) {
+                    dayEl.classList.add('selected');
+                }
+
+                dayEl.onclick = () => selectDay(day);
+                grid.appendChild(dayEl);
+            }
+        }
+
+        function selectDay(day) {
+            selectedDate = { day, month: currentMonth, year: currentYear };
+            
+            // Actualizar UI
+            renderCalendar();
+            
+            const msg = document.getElementById('selected-date-msg');
+            msg.innerText = `Cita seleccionada: ${day} de ${monthNames[currentMonth]} de ${currentYear}.`;
+            msg.classList.remove('text-stone-500');
+            msg.classList.add('text-stone-900', 'font-bold');
+
+            const btn = document.getElementById('whatsapp-btn');
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            btn.onclick = () => {
+                const text = encodeURIComponent(`Hola fit.lifewithasmile! Me gustaría agendar una cita de maderoterapia para el día ${day} de ${monthNames[currentMonth]} de ${currentYear} en Tenerife.`);
+                window.open(`https://wa.me/34600000000?text=${text}`, '_blank');
+            };
+        }
+
+        function changeMonth(dir) {
+            currentMonth += dir;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            renderCalendar();
+        }
+
+        // Navegación scroll
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('py-2', 'bg-white/95');
+                nav.classList.remove('py-4');
+            } else {
+                nav.classList.add('py-4', 'bg-white/80');
+                nav.classList.remove('py-2');
+            }
+        });
+    </script>
+</body>
+</html>
